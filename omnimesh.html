@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OmniMesh AI - All Retail Sectors</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#020617;color:#f1f5f9;font-family:system-ui,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.g{background:rgba(30,41,59,.65);border:1px solid rgba(255,255,255,.07);border-radius:1rem}
+.b{padding:.4rem .75rem;border-radius:.6rem;background:#1e293b;border:1px solid #334155;font-size:12px;white-space:nowrap}
+.b:hover{background:#334155}.on{background:#4f46e5!important;border-color:#6366f1!important}
+.sc::-webkit-scrollbar{height:5px;width:5px}.sc::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+</style></head>
+<body>
+<header class="sticky top-0 z-40 bg-slate-900/95 border-b border-indigo-500/20 backdrop-blur">
+ <div class="px-3 py-2 text-xs border-b border-slate-800 flex flex-wrap items-center gap-2 bg-indigo-950/40">
+  <b class="text-amber-300">🏆 DEMO</b>
+  <button class="b" onclick="rush()">🔥 Demand Rush</button>
+  <button class="b" onclick="stockout()">⚠️ Online Stockout</button>
+  <button class="b" onclick="abandon()">🛒 Abandoned Cart</button>
+  <button class="b" onclick="reset()">↺ Reset</button>
+ </div>
+ <div class="max-w-7xl mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+  <div class="font-extrabold cursor-pointer" onclick="home()">🕸️ OmniMesh <span class="text-xs bg-indigo-500/30 px-1.5 rounded">AI</span></div>
+  <nav class="flex gap-1 text-sm">
+   <button id="n-store" class="b" onclick="go('store')">🏪 Store</button>
+   <button id="n-inv" class="b" onclick="go('inv')">📦 Inventory <span id="lowb" class="text-amber-300 text-[10px]"></span></button>
+   <button id="n-ai" class="b" onclick="go('ai')">🧠 AI Mesh</button>
+  </nav>
+  <div class="flex items-center gap-2">
+   <span id="who" class="text-xs text-slate-300">Guest</span>
+   <button id="loginBtn" class="b on" onclick="$('auth').classList.remove('hidden')">Login</button>
+   <button class="b" onclick="$('drawer').classList.remove('hidden')">🛒 <b id="cc" class="text-indigo-300">0</b></button>
+  </div>
+ </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-3 py-5 space-y-6">
+<section id="landing" class="space-y-6">
+ <div class="rounded-3xl p-7 sm:p-12 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 border border-indigo-500/30 space-y-4">
+  <h1 class="text-3xl sm:text-5xl font-black leading-tight max-w-3xl">Real-Time Store Inventory meets <span class="text-cyan-400">AI Customer Intent</span></h1>
+  <p class="text-slate-300 text-sm max-w-3xl">One mesh for online store, Chennai, Vellore, Bangalore branches and central warehouse, across 9 retail sectors with 18 products each.</p>
+  <button class="b on !text-sm !px-5 !py-3" onclick="enter('elec')">⚡ Launch Demo as Guest</button>
+ </div>
+ <h2 class="font-bold">Choose a Retail Sector</h2>
+ <div id="secGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+ <div class="grid md:grid-cols-3 gap-4 text-xs text-slate-300">
+  <div class="g p-4"><b class="text-indigo-300 text-sm">🤖 Persona Agent</b><p class="mt-1">Reads searches and clicks to detect Premium, Smart or Budget intent.</p></div>
+  <div class="g p-4"><b class="text-emerald-300 text-sm">🤖 Inventory Sync Agent</b><p class="mt-1">Watches 5 nodes, flags low stock and overstock, routes orders to nearest stock.</p></div>
+  <div class="g p-4"><b class="text-cyan-300 text-sm">🤖 Dynamic Pricing Agent</b><p class="mt-1">Builds bundles from intent plus surplus stock with real discounts.</p></div>
+ </div>
+</section>
+
+<div id="dash" class="hidden space-y-5">
+ <div id="secBar" class="flex gap-2 overflow-x-auto sc pb-2"></div>
+
+ <section id="t-store" class="space-y-5">
+  <div class="g p-4 flex flex-col lg:flex-row gap-3 lg:items-center justify-between">
+   <div id="perBar" class="flex flex-wrap gap-2"></div>
+   <input id="q" oninput="search(this.value)" placeholder="Search products / category..." class="lg:w-80 bg-slate-950 text-sm rounded-lg px-3 py-2 border border-slate-700 focus:outline-none focus:border-cyan-500">
+  </div>
+  <div id="subBar" class="flex gap-2 overflow-x-auto sc pb-1"></div>
+  <div class="rounded-2xl p-6 bg-gradient-to-r from-indigo-900 via-slate-900 to-slate-950 border border-indigo-500/30">
+   <div id="hTag" class="text-xs text-indigo-300"></div>
+   <h2 id="hTitle" class="text-2xl font-extrabold"></h2>
+   <p id="hDesc" class="text-sm text-slate-300"></p>
+  </div>
+  <div class="g p-4 border-cyan-500/30">
+   <div class="font-bold text-sm mb-3">🪄 AI Synthesized Bundle <span id="bTag" class="text-xs text-cyan-300 font-mono ml-2"></span></div>
+   <div class="grid lg:grid-cols-12 gap-3 items-center">
+    <div id="bItems" class="lg:col-span-8 grid sm:grid-cols-3 gap-2"></div>
+    <div class="lg:col-span-4 bg-slate-900 rounded-xl p-3 border border-slate-800 space-y-1">
+     <div class="text-xs text-slate-400">Regular <span id="bReg" class="line-through"></span></div>
+     <div id="bDisc" class="text-xs text-emerald-400"></div>
+     <div id="bFinal" class="text-2xl font-black text-cyan-300"></div>
+     <button class="b on w-full" onclick="addBundle()">Add Complete Bundle</button>
+    </div>
+   </div>
+  </div>
+  <div class="flex justify-between text-sm"><h3 class="font-bold">Live Multi-Location Catalog</h3><span class="text-slate-400"><b id="cnt" class="text-white"></b> SKUs</span></div>
+  <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+ </section>
+
+ <section id="t-inv" class="hidden space-y-5">
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 text-center text-xs text-slate-400">
+   <div class="g p-3">SKUs<div id="kAll" class="text-2xl font-extrabold text-white"></div></div>
+   <div class="g p-3">Low Stock<div id="kLow" class="text-2xl font-extrabold text-amber-400"></div></div>
+   <div class="g p-3">Overstock<div id="kOver" class="text-2xl font-extrabold text-cyan-400"></div></div>
+   <div class="g p-3">Stockouts Prevented<div id="kPrev" class="text-2xl font-extrabold text-rose-400"></div></div>
+   <div class="g p-3 col-span-2 lg:col-span-1">Margin Lift<div class="text-2xl font-extrabold text-emerald-400">+18.4%</div></div>
+  </div>
+  <div class="g p-4 space-y-3">
+   <div class="flex justify-between items-center"><h3 class="font-bold" id="invTitle"></h3><button class="b" onclick="restock()">📦 Restock Online</button></div>
+   <div class="overflow-x-auto sc">
+    <table class="w-full text-xs text-left">
+     <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]"><tr><th class="p-2">Product</th><th class="p-2">Type</th><th class="p-2">Online</th><th class="p-2">Chennai</th><th class="p-2">Vellore</th><th class="p-2">Bangalore</th><th class="p-2">Warehouse</th><th class="p-2">Total</th><th class="p-2">Status</th><th class="p-2"></th></tr></thead>
+     <tbody id="invBody" class="divide-y divide-slate-800 font-mono"></tbody>
+    </table>
+   </div>
+  </div>
+ </section>
+
+ <section id="t-ai" class="hidden space-y-5">
+  <div class="g p-4 space-y-3">
+   <div class="flex justify-between items-center"><h2 class="font-black text-lg">3-Agent Decision Flow</h2>
+    <div class="flex gap-2"><button id="pz" class="b" onclick="pause()">⏸ Pause</button><button class="b" onclick="$('logbox').innerHTML=''">🗑 Clear</button></div></div>
+   <div class="grid md:grid-cols-3 gap-3 text-xs">
+    <div class="g p-3"><b>Agent 1: Persona</b><div id="a1" class="text-indigo-300 mt-1"></div></div>
+    <div class="g p-3"><b>Agent 2: Inventory Sync</b><div id="a2" class="text-emerald-300 mt-1"></div></div>
+    <div class="g p-3"><b>Agent 3: Dynamic Pricing</b><div id="a3" class="text-cyan-300 mt-1"></div></div>
+   </div>
+  </div>
+  <div id="logbox" class="bg-slate-950 p-3 rounded-xl border border-slate-800 h-72 overflow-y-auto sc font-mono text-xs space-y-1"></div>
+ </section>
+</div>
+</main>
+
+<div id="auth" class="fixed inset-0 z-50 hidden bg-slate-950/80 flex items-center justify-center p-4">
+ <div class="g max-w-sm w-full p-5 space-y-3 bg-slate-900">
+  <div class="flex justify-between"><b>Login / Sign Up</b><button onclick="$('auth').classList.add('hidden')">✕</button></div>
+  <input id="aName" placeholder="Name or email" class="w-full bg-slate-950 text-sm rounded-lg px-3 py-2 border border-slate-700">
+  <input type="password" placeholder="Password" class="w-full bg-slate-950 text-sm rounded-lg px-3 py-2 border border-slate-700">
+  <button class="b on w-full" onclick="login($('aName').value||'Guest')">Authenticate</button>
+  <button class="b w-full text-cyan-300" onclick="login('Guest')">⚡ Instant Guest Access</button>
+ </div>
+</div>
+
+<div id="drawer" class="fixed inset-0 z-50 hidden bg-slate-950/70">
+ <div class="absolute inset-y-0 right-0 max-w-md w-full bg-slate-900 border-l border-slate-800 p-5 flex flex-col justify-between">
+  <div class="space-y-3 overflow-y-auto sc">
+   <div class="flex justify-between border-b border-slate-800 pb-2"><b>🛍️ Shopping Cart</b><button onclick="$('drawer').classList.add('hidden')">✕</button></div>
+   <div id="cartBox" class="space-y-2"></div>
+   <div class="border-t border-slate-800 pt-3 space-y-2 text-xs">
+    <div class="font-bold text-sm">💳 Payment Method</div>
+    <div id="payBox" class="grid grid-cols-2 gap-2"></div>
+    <div id="payDetail"></div>
+   </div>
+  </div>
+  <div class="border-t border-slate-800 pt-3 space-y-2 text-sm">
+   <div class="flex justify-between text-slate-400"><span>Subtotal</span><span id="cSub"></span></div>
+   <div class="flex justify-between text-emerald-400"><span>Mesh Discount</span><span id="cDis"></span></div>
+   <div class="flex justify-between font-bold text-lg"><span>Total</span><span id="cTot" class="text-cyan-300"></span></div>
+   <button class="b on w-full !py-3" onclick="checkout()">Checkout Order</button>
+  </div>
+ </div>
+</div>
+
+<div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-24 opacity-0 transition-all duration-300 pointer-events-none g bg-slate-900 px-4 py-3 max-w-xs">
+ <div id="tT" class="text-xs font-bold"></div><div id="tM" class="text-[11px] text-slate-300"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id),f=n=>'₹'+Math.round(n).toLocaleString('en-IN'),cap=s=>s[0].toUpperCase()+s.slice(1);
+const N=['online','chennai','vellore','bangalore','warehouse'],ST=['vellore','chennai','bangalore'];
+
+/* sector: icon, name, sub-categories */
+const S={
+auto:['🚗','Automotive Retail',['Car Showroom','Used Cars','EV Showroom','Accessories','Spare Parts']],
+bike:['🏍️','Two-Wheeler Retail',['Bike Showroom','Scooter','EV Bikes','Accessories','Spare Parts']],
+groc:['🛒','Grocery / Supermarket',['Supermarket','Grocery','Hypermarket','Convenience']],
+fash:['👕','Fashion Retail',['Men','Women','Kids','Footwear','Accessories']],
+elec:['📱','Electronics',['Mobile','Laptop','TV','Appliances','Gaming']],
+home:['🛋️','Home & Furniture',['Furniture','Mattress','Home Decor','Kitchen']],
+beau:['💄','Beauty',['Cosmetics','Skincare','Haircare','Beauty Tools']],
+impr:['🏠','Home Improvement',['Hardware','Electrical','Plumbing','Paint','Building Material']],
+dept:['🏬','Department Store',['Fashion','Electronics','Grocery','Home','Beauty','Accessories']]};
+
+/* name|sub-index|price|icon  (18 products per sector) */
+const R={
+auto:['Hyundai Creta SX|0|1650000|🚙','Maruti Swift VXi|0|780000|🚗','Tata Punch|0|720000|🚘','Kia Seltos HTX|0|1500000|🚙','Honda City 2019 (Used)|1|725000|🚘','Toyota Innova 2018 (Used)|1|1450000|🚐','Maruti Baleno 2020 (Used)|1|610000|🚗','Hyundai i20 2021 (Used)|1|690000|🚗','Tata Nexon EV|2|1500000|🔋','MG Comet EV|2|700000|⚡','Tata Tiago EV|2|870000|🔌','Car Dash Camera|3|4500|📹','Leather Seat Covers|3|6500|💺','Car Floor Mats|3|2400|🧽','Car Air Purifier|3|3800|🌬️','Brake Pad Set|4|2800|🛞','Engine Oil 4L|4|2200|🛢️','Car Battery 65Ah|4|7200|🔋'],
+bike:['Royal Enfield Classic 350|0|193000|🏍️','Yamaha R15 V4|0|182000|🏍️','KTM Duke 200|0|196000|🏍️','Bajaj Pulsar N160|0|135000|🏍️','Honda Activa 6G|1|78000|🛵','TVS Jupiter|1|75000|🛵','Suzuki Access 125|1|82000|🛵','Ola S1 Pro|2|130000|⚡','Ather 450X|2|155000|🔌','TVS iQube|2|125000|🔋','Full-Face Helmet|3|3200|🪖','Riding Gloves|3|900|🧤','Bike Cover|3|650|🛡️','Phone Holder Mount|3|550|📱','Chain Sprocket Kit|4|1800|⛓️','Disc Brake Pads|4|850|🛞','Bike Tyre 90/90|4|2200|⚙️','Engine Oil 1L|4|480|🛢️'],
+groc:['Basmati Rice 5kg|0|620|🍚','Fresh Milk 1L x6|0|390|🥛','Brown Bread Pack|0|60|🍞','Eggs Tray 30|0|210|🥚','Cold-Pressed Oil 1L|1|210|🫒','Atta 10kg|1|520|🌾','Toor Dal 1kg|1|165|🫘','Sugar 5kg|1|230|🍬','Family Pack Detergent 4kg|2|760|🧴','Monthly Staples Combo|2|2450|🧺','Bulk Cooking Oil 5L|2|950|🛢️','Toilet Paper 12 Rolls|2|480|🧻','Tea Powder 1kg|3|480|🍵','Instant Noodles 12pk|3|150|🍜','Cold Drink 2L|3|95|🥤','Chips Family Pack|3|120|🍟','Biscuit Combo 10pk|3|180|🍪','Bottled Water 20L|3|80|💧'],
+fash:['Men Formal Shirt|0|1499|👔','Men Denim Jeans|0|1999|👖','Men Polo T-Shirt|0|799|👕','Men Blazer|0|4999|🧥','Women Silk Saree|1|4200|🥻','Women Kurti Set|1|1799|👚','Women Maxi Dress|1|2299|👗','Women Leggings Pack|1|899|🩱','Kids Party Wear|2|1299|👗','Kids School Bag|2|999|🎒','Kids T-Shirt Pack|2|699|👕','Running Shoes|3|3499|👟','Leather Sandals|3|1299|🩴','Formal Shoes|3|2999|👞','Heels|3|2199|👠','Leather Wallet|4|899|👛','Sunglasses|4|1599|🕶️','Leather Belt|4|699|🪢'],
+elec:['5G Smartphone Pro 256GB|0|34999|📱','Budget Phone 128GB|0|12999|📱','Flagship Phone 512GB|0|79999|📱','Wireless Earbuds|0|4999|🎧','Ultrabook Pro 14"|1|72000|💼','Student Laptop 15"|1|38999|💻','Business Laptop i5|1|54999|💻','55" 4K Smart TV|2|42999|📺','43" Full HD TV|2|24999|📺','Soundbar 2.1|2|8999|🔊','Inverter Washing Machine|3|28999|🧺','Double Door Fridge|3|32999|🧊','Split AC 1.5 Ton|3|38999|❄️','Microwave Oven|3|9999|🍲','Predator RTX 4070 Gaming Laptop|4|65000|🎮','Apex RGB Mechanical Keyboard|4|6990|⌨️','HyperSpeed Wireless Mouse|4|3490|🖱️','Gaming Headset|4|4290|🎧'],
+home:['L-Shape Sofa|0|38999|🛋️','Teak Dining Table 6-Seater|0|45999|🪑','Wardrobe 3-Door|0|24999|🚪','Study Table|0|8999|📚','TV Unit|0|12999|📺','Orthopedic Mattress Queen|1|18999|🛏️','Memory Foam Mattress King|1|24999|🛏️','Single Bed Mattress|1|9999|🛏️','Wall Art Set of 3|2|3499|🖼️','Ceramic Table Lamp|2|1299|💡','Floor Rug 5x7|2|4999|🧶','Curtain Pair|2|1899|🪟','Wall Clock|2|1199|🕰️','Non-Stick Cookware Set|3|3999|🍳','Mixer Grinder 750W|3|4299|🥤','Pressure Cooker 5L|3|1899|🍲','Dinner Set 24pc|3|2999|🍽️','Air Fryer 4L|3|5999|🍟'],
+beau:['Matte Lipstick Set|0|1299|💄','Kajal & Eyeliner Kit|0|699|👁️','Foundation SPF|0|899|🧴','Compact Powder|0|450|🪞','Nail Polish Set|0|599|💅','Vitamin C Serum|1|899|🧴','Sunscreen SPF50|1|599|☀️','Moisturizer 100g|1|499|🧴','Face Wash|1|299|🫧','Night Cream|1|799|🌙','Onion Hair Oil|2|449|💆','Keratin Shampoo|2|650|🧴','Hair Serum|2|550|✨','Conditioner 250ml|2|420|🧴','Hair Dryer Pro|3|2499|💇','Makeup Brush Set|3|1199|🖌️','Hair Straightener|3|1999|💈','Face Roller|3|699|🪨'],
+impr:['Power Drill Set|0|4500|🔧','Tool Kit 120pc|0|2900|🧰','Hammer & Plier Set|0|750|🔨','Door Lock Set|0|1800|🔐','LED Bulb Pack of 10|1|1200|💡','Modular Switch Set|1|2200|🔌','Extension Board|1|650|🔌','Copper Wire 90m|1|2800|🧵','CPVC Pipe Fittings Kit|2|1800|🚰','Water Tank 1000L|2|8500|🛢️','Tap Set|2|950|🚿','Premium Emulsion Paint 20L|3|7800|🎨','Wood Primer 4L|3|1400|🪣','Paint Roller Kit|3|450|🖌️','Cement 50kg Bag|4|420|🧱','TMT Steel Bar Bundle|4|38000|🏗️','River Sand 1 Ton|4|2200|⏳','Red Bricks 1000|4|7500|🧱'],
+dept:['Men T-Shirt Pack of 3|0|1299|👕','Women Kurti|0|999|👚','Kids Jeans|0|799|👖','Smart Watch|1|7999|⌚','Bluetooth Speaker|1|2999|🔊','Power Bank 20000mAh|1|1799|🔋','Organic Staples Combo|2|1450|🧺','Dry Fruits Box|2|899|🥜','Cooking Oil Pack|2|650|🫒','Cotton Bedsheet Set|3|1899|🛏️','Dinner Set|3|2499|🍽️','Storage Containers|3|999|📦','Perfume Gift Set|4|2299|🧴','Skincare Combo|4|1599|🧴','Hair Care Kit|4|1199|💆','Leather Handbag|5|3299|👜','Sunglasses|5|1499|🕶️','Wrist Watch|5|2799|⌚']};
+
+const P={
+premium:{n:'Premium Buyer',i:'💎',d:10,desc:'High-value picks with guaranteed fast fulfilment.'},
+smart:{n:'Smart Shopper',i:'🧠',d:15,desc:'Best-value mid-range combos from balanced stock.'},
+budget:{n:'Budget Hunter',i:'🏷️',d:20,desc:'Overstock clearance deals at maximum discount.'}};
+
+/* stock is generated from price tier: costly items = few units, cheap items = many */
+const B=p=>p>500000?2:p>50000?3:p>20000?6:p>5000?10:p>1500?20:40;
+let products=[];
+Object.keys(R).forEach(k=>R[k].forEach((s,i)=>{const a=s.split('|'),price=+a[2],b=B(price);
+ products.push({id:k+i,sec:k,name:a[0],sub:S[k][2][+a[1]],price,icon:a[3],b,inv:{
+  online:Math.round(b*(1+i%3*.5)),chennai:i%7===0?0:Math.round(b*.8),vellore:Math.round(b*(i%5===0?3:1.2)),
+  bangalore:Math.round(b*.9),warehouse:Math.round(b*(b<4?2:i%4===0?8:4))}})}));
+const base=products.map(p=>({...p.inv}));
+const st={sec:'elec',sub:'All',per:'premium',q:'',tab:'store',cart:{},paused:false,prev:14,clicks:0};
+
+/* ===== PAYMENT OPTIONS ===== */
+st.pay='cod';
+const PAY={upi:['📲','QR Code / UPI'],cod:['💵','Cash on Delivery'],debit:['💳','Debit Card'],credit:['💳','Credit Card']};
+const qrSvg=()=>{let c='';for(let i=0;i<225;i++){const x=i%15,y=(i/15|0),eye=(x<5&&y<5)||(x>9&&y<5)||(x<5&&y>9);c+=`<rect x="${x*8}" y="${y*8}" width="8" height="8" fill="${eye||Math.random()>.5?'#000':'#fff'}"/>`}
+ return `<div class="text-center mt-2"><svg viewBox="0 0 120 120" class="w-32 h-32 mx-auto bg-white p-1 rounded">${c}</svg><div class="text-[11px] text-slate-400 mt-1">Scan to pay (demo QR)</div></div>`};
+function renderPay(){
+ $('payBox').innerHTML=Object.keys(PAY).map(k=>`<button class="b ${k===st.pay?'on':''}" onclick="setPay('${k}')">${PAY[k][0]} ${PAY[k][1]}</button>`).join('');
+ const i='w-full bg-slate-950 text-sm rounded-lg px-3 py-2 border border-slate-700';
+ $('payDetail').innerHTML=st.pay==='upi'?qrSvg():st.pay==='cod'?'<div class="text-slate-400">Delivery-ku pothu cash kudunga. Extra charge illa.</div>':
+ `<div class="space-y-2"><input id="cn" maxlength="19" placeholder="Card Number (16 digits)" class="${i}"><div class="flex gap-2"><input id="ce" placeholder="MM/YY" class="${i}"><input id="cv" type="password" maxlength="3" placeholder="CVV" class="${i}"></div></div>`;
+}
+function setPay(k){st.pay=k;renderPay()}
+function payCheck(){
+ if(st.pay==='debit'||st.pay==='credit'){
+  if($('cn').value.replace(/\s/g,'').length!==16)return'Enter valid 16-digit card number';
+  if(!$('ce').value)return'Enter expiry date';
+  if($('cv').value.length!==3)return'Enter 3-digit CVV';
+ }
+}
+
+const tot=p=>N.reduce((a,n)=>a+p.inv[n],0);
+const route=p=>{if(p.inv.online>0)return'online';const s=[...ST].sort((a,b)=>p.inv[b]-p.inv[a])[0];return p.inv[s]>0?s:(p.inv.warehouse>0?'warehouse':null)};
+const over=p=>p.inv.vellore>=3*p.b||p.inv.warehouse>=8*p.b;
+const status=p=>p.inv.online===0?['Fallback Active','text-amber-400']:over(p)?['Overstock','text-cyan-300']:tot(p)<=p.b*7?['Low Stock','text-rose-400']:['Synced','text-emerald-400'];
+const secProds=()=>products.filter(p=>p.sec===st.sec);
+
+function toast(t,m){$('tT').textContent=t;$('tM').textContent=m;const e=$('toast');e.classList.remove('translate-y-24','opacity-0');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.add('translate-y-24','opacity-0'),2800)}
+function log(s,m){if(st.paused)return;const d=document.createElement('div');d.innerHTML=`<span class="text-slate-600">[${new Date().toLocaleTimeString()}]</span> <b class="text-cyan-400">[${s}]</b> ${m}`;const b=$('logbox');b.appendChild(d);b.scrollTop=b.scrollHeight}
+
+/* views */
+function home(){$('landing').classList.remove('hidden');$('dash').classList.add('hidden')}
+function enter(k){st.sec=k;st.sub='All';st.q='';$('q').value='';$('landing').classList.add('hidden');$('dash').classList.remove('hidden');log('System',`Sector loaded: ${S[k][1]}. Mesh active across 5 nodes.`);go('store')}
+function go(t){st.tab=t;['store','inv','ai'].forEach(x=>{$('t-'+x).classList.toggle('hidden',x!==t);$('n-'+x).classList.toggle('on',x===t)});renderAll()}
+function login(n){$('who').textContent=n;$('loginBtn').classList.add('hidden');$('auth').classList.add('hidden');toast('Welcome','Logged in as '+n);enter(st.sec)}
+
+/* render */
+function renderAll(){renderTop();renderProducts();renderBundle();renderInv();renderAgents();renderCart()}
+function renderTop(){
+ $('secBar').innerHTML=Object.keys(S).map(k=>`<button class="b ${k===st.sec?'on':''}" onclick="enter('${k}')">${S[k][0]} ${S[k][1]}</button>`).join('');
+ $('perBar').innerHTML=Object.keys(P).map(k=>`<button class="b ${k===st.per?'on':''}" onclick="persona('${k}')">${P[k].i} ${P[k].n}</button>`).join('');
+ $('subBar').innerHTML=['All',...S[st.sec][2]].map(s=>`<button class="b ${s===st.sub?'on':''}" onclick="st.sub='${s}';renderTop();renderProducts()">${s}</button>`).join('');
+}
+function renderProducts(){
+ const l=secProds().filter(p=>(st.sub==='All'||p.sub===st.sub)&&(p.name+p.sub).toLowerCase().includes(st.q));
+ $('cnt').textContent=l.length;
+ $('grid').innerHTML=l.map(p=>{const r=route(p),bd=p.inv.online>0?`Online: ${p.inv.online}`:r?`Fallback: ${cap(r)} (${p.inv[r]})`:'Out of stock';
+ return `<div class="g p-4 flex flex-col justify-between gap-3"><div class="space-y-1"><div class="flex justify-between"><span class="text-3xl">${p.icon}</span><span class="text-[10px] font-mono bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded h-fit">${bd}</span></div><div class="font-bold text-sm">${p.name}</div><div class="text-xs text-slate-400">${p.sub}</div></div><div class="flex justify-between items-center border-t border-slate-800 pt-2"><b class="text-lg">${f(p.price)}</b><button class="b on" ${r?'':'disabled'} onclick="add('${p.id}')">+ Cart</button></div></div>`}).join('')||'<div class="text-slate-400 text-sm">No products found.</div>';
+}
+function bundle(){const a=[...secProds()].sort((x,y)=>y.price-x.price),m=Math.floor(a.length/2)-1;return st.per==='premium'?a.slice(0,3):st.per==='smart'?a.slice(m,m+3):a.slice(-3)}
+function renderBundle(){
+ const p=P[st.per],it=bundle(),reg=it.reduce((s,x)=>s+x.price,0);
+ $('bItems').innerHTML=it.map(x=>`<div class="bg-slate-900 p-2 rounded-xl border border-slate-800 flex gap-2 items-center"><span class="text-2xl">${x.icon}</span><div class="min-w-0"><div class="text-xs font-bold truncate">${x.name}</div><div class="text-[10px] font-mono text-slate-400">${f(x.price)}</div></div></div>`).join('');
+ $('bReg').textContent=f(reg);$('bDisc').textContent=`AI Mesh Discount Applied (-${p.d}%)`;$('bFinal').textContent=f(reg*(1-p.d/100));
+ $('bTag').textContent='Mesh Pricing: '+p.n;$('hTag').textContent=`${p.i} ${p.n} Persona Active`;
+ $('hTitle').textContent=`${S[st.sec][0]} ${S[st.sec][1]}: ${p.n} Picks`;$('hDesc').textContent=p.desc;
+}
+function renderInv(){
+ $('invTitle').textContent=S[st.sec][1]+' Inventory Control Mesh';
+ $('invBody').innerHTML=secProds().map(p=>{const s=status(p);return `<tr class="hover:bg-slate-900/60"><td class="p-2 font-semibold font-sans">${p.icon} ${p.name}</td><td class="p-2 text-slate-400 font-sans">${p.sub}</td>${N.map(n=>`<td class="p-2 ${n==='online'&&!p.inv.online?'text-rose-400 font-bold':''}">${p.inv[n]}</td>`).join('')}<td class="p-2 font-bold">${tot(p)}</td><td class="p-2 font-sans ${s[1]}">${s[0]}</td><td class="p-2"><button class="b !text-[10px]" onclick="deplete('${p.id}')">Deplete Online</button></td></tr>`}).join('');
+ const low=products.filter(p=>status(p)[0]==='Low Stock'||!p.inv.online).length;
+ $('kAll').textContent=products.length;$('kLow').textContent=low;$('kOver').textContent=products.filter(over).length;$('kPrev').textContent=st.prev;$('lowb').textContent=low?low+' alerts':'';
+}
+function renderAgents(){
+ const sp=[...secProds()].sort((a,b)=>tot(b)-tot(a))[0];
+ $('a1').innerHTML=`Profile: <b>${P[st.per].n}</b><br>Affinity: ${88+st.clicks%10}% · Signals: ${st.clicks}`;
+ $('a2').innerHTML=`Nodes: <b>5 Synced</b><br>Top surplus: ${sp.name} (${tot(sp)} units)`;
+ $('a3').innerHTML=`Offer: 3-item bundle<br>Discount: <b>${P[st.per].d}% Off</b>`;
+}
+
+/* actions */
+function persona(k){st.per=k;st.clicks++;renderTop();renderBundle();renderAgents();log('Persona Agent','Intent shifted to '+P[k].n);log('Pricing Agent',`Rebuilt bundle with ${P[k].d}% discount`);toast('Persona Updated',P[k].n)}
+function search(v){st.q=v.toLowerCase();st.clicks++;renderProducts();if(v.length>2){log('Persona Agent',`Search signal "${v}" captured`);renderAgents()}}
+function add(id,d){const p=products.find(x=>x.id===id),c=st.cart[id]||(st.cart[id]={q:0,d:0});c.q++;if(d)c.d=d;st.clicks++;renderCart();renderAgents();log('Inventory Agent',`${p.name} reserved via ${cap(route(p)||'none')} node`);toast('Cart Updated',p.name+' added')}
+function addBundle(){const d=P[st.per].d;bundle().forEach(p=>add(p.id,d));log('Pricing Agent',`Bundle added with ${d}% discount`);$('drawer').classList.remove('hidden')}
+function renderCart(){
+ let sub=0,dis=0,n=0;
+ $('cartBox').innerHTML=Object.keys(st.cart).map(id=>{const c=st.cart[id],p=products.find(x=>x.id===id);n+=c.q;sub+=p.price*c.q;dis+=p.price*c.q*c.d/100;
+ return `<div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-between items-center text-xs"><div><div class="font-bold">${p.icon} ${p.name}</div><div class="text-slate-400">${f(p.price)} × ${c.q}${c.d?` · -${c.d}%`:''}</div></div><div class="flex gap-1"><button class="b" onclick="chg('${id}',-1)">−</button><button class="b" onclick="chg('${id}',1)">+</button></div></div>`}).join('')||'<div class="text-slate-400 text-sm">Cart is empty.</div>';
+ $('cc').textContent=n;$('cSub').textContent=f(sub);$('cDis').textContent='-'+f(dis);$('cTot').textContent=f(sub-dis);
+}
+function chg(id,d){const c=st.cart[id];c.q+=d;if(c.q<=0)delete st.cart[id];renderCart()}
+function checkout(){
+ const ids=Object.keys(st.cart);if(!ids.length)return toast('Cart empty','Add something first');
+ const pe=payCheck();if(pe)return toast('Payment',pe);
+ let rt=0;
+ ids.forEach(id=>{const p=products.find(x=>x.id===id);for(let i=0;i<st.cart[id].q;i++){const r=route(p);if(r==='online')p.inv.online--;else if(r){p.inv[r]--;rt++;st.prev++;log('Inventory Agent',`${p.name}: online empty, fulfilled from ${cap(r)}`)}}});
+ st.cart={};renderAll();renderPay();$('drawer').classList.add('hidden');
+ toast('Order Confirmed!',PAY[st.pay][1]+' · '+(rt?`${rt} item(s) fulfilled via nearby store node.`:'Fulfilled from online warehouse.'));
+}
+function deplete(id){const p=products.find(x=>x.id===id);p.inv.online=0;log('Inventory Agent',`${p.name} online = 0. Routing to ${cap(route(p)||'none')}`);renderAll()}
+function restock(){secProds().forEach(p=>p.inv.online=Math.max(p.inv.online,p.b+5));log('Inventory Agent','Online nodes restocked');renderAll()}
+
+/* demo controls */
+function ensure(){if($('dash').classList.contains('hidden'))enter(st.sec)}
+function rush(){ensure();st.per='premium';[...secProds()].sort((a,b)=>b.price-a.price).slice(0,3).forEach(p=>p.inv.online=Math.min(p.inv.online,1));st.clicks+=8;go('store');log('Persona Agent','Demand surge on top items');log('Pricing Agent','Bundles shifted to surplus items');toast('Demand Rush','Top items nearly sold out online')}
+function stockout(){ensure();const a=secProds().filter(p=>p.inv.online>0),p=a[Math.floor(Math.random()*a.length)];if(!p)return;p.inv.online=0;go('inv');log('Inventory Agent',`STOCKOUT: ${p.name}. Fallback ${cap(route(p)||'none')}`);toast('Stockout Simulated',`${p.name} → ${cap(route(p)||'none')}`)}
+function abandon(){ensure();const a=secProds(),p=a[Math.floor(Math.random()*a.length)];add(p.id,10);go('store');$('drawer').classList.remove('hidden');log('Pricing Agent','Abandoned cart: 10% coupon for '+p.name);toast('Abandoned Cart','Dynamic discount coupon generated!')}
+function reset(){products.forEach((p,i)=>p.inv={...base[i]});st.cart={};st.prev=14;st.clicks=0;renderAll();toast('Reset','Baseline inventory restored')}
+function pause(){st.paused=!st.paused;$('pz').textContent=st.paused?'▶ Resume':'⏸ Pause'}
+
+$('secGrid').innerHTML=Object.keys(S).map(k=>`<button class="g p-4 text-left hover:border-indigo-400 transition" onclick="enter('${k}')"><div class="text-3xl">${S[k][0]}</div><div class="font-bold text-sm mt-1">${S[k][1]}</div><div class="text-[10px] text-slate-400 mt-1">${S[k][2].join(' · ')}</div></button>`).join('');
+renderCart();
+renderPay();
+</script>
+</body></html>
